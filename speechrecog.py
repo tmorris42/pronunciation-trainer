@@ -62,16 +62,16 @@ class App:
         self.lang = lang
         self.log = tk.StringVar(value='test')
         self.phrase_pack = phrasepack
+        self.master = master
         
-        self.make_window(master)
-        self.ulog('window loaded')
+        self.make_window()
         self.load_phraselist(self.phrase_pack)
 
     def ulog(self, message, flag=None):
         self.log.set(message)
 
-    def make_window(self, master):
-        self.master = master
+    def make_window(self):
+        self.master.winfo_toplevel().title("Say it")
 
         self.filebar = tk.Menu(self.master)
         
@@ -89,10 +89,6 @@ class App:
         self.langmenu.add_command(label="English", command=lambda:self.change_language('en-US'))
         self.langmenu.add_command(label="French", command=lambda:self.change_language('fr-FR'))
         self.filebar.add_cascade(label="Language", menu=self.langmenu)
-##        self.file = tk.Menubutton(self.filebar,text="File")
-##        self.edit = tk.Menubutton(self.filebar,text="Edit")
-##        self.file.pack(side=tk.LEFT)
-##        self.edit.pack(side=tk.LEFT)        
 
         self.menu = tk.Frame(self.main)
         self.studio = tk.Frame(self.main)
@@ -112,11 +108,8 @@ class App:
         self.targetViewer.pack(side=tk.TOP)
 
         self.phrases = tk.Listbox(self.phrasebook)
-##        self.phrases.insert(tk.END,' ')
-        
-        
+
         self.phrases.bind("<Double-Button-1>", self.select_phrase)
-##        self.phrases.config(selectbackground=None,selectborderwidth=0,selectforeground=None)
         self.phrasescroll = tk.Scrollbar(self.phrasebook)
         self.phrases.pack(side=tk.LEFT,fill=tk.X,expand=1)
         self.phrasescroll.pack(side=tk.LEFT,fill=tk.Y)
@@ -133,9 +126,6 @@ class App:
 ##        self.speak()
 
     def speak(self, *args):
-##        if args:
-##            print(args[0].__dict__)
-##        target = 'hello'
         target = self.target.get()
         audio = get_audio()
         if self.sr_meth == 'sphinx':
@@ -155,7 +145,7 @@ class App:
             self.targetViewer.config(readonlybackground='red')
 
     def select_phraselist(self):
-        file = tk.filedialog.askopenfile(parent=self.master,initialdir=LESSON_PATH+self.lang,mode='rb',title='my title')
+        file = tk.filedialog.askopenfile(parent=self.master,initialdir=LESSON_PATH+self.lang,mode='rb',title='Open Lesson...')
         if file != None:
             self.load_phraselist(file)
         
@@ -170,23 +160,23 @@ class App:
                 
                 phrases.append(nline)
         else:
-            self.ulog('Loading {}'.format(listname))
+            self.ulog('Loading {}'.format(self.lang+"\\"+listname))
             try:
-                with open(listname) as file:
+                with open(LESSON_PATH+self.lang+"\\"+listname) as file:
                     for line in file:
                         nline=line.rstrip('\n')
-                        phrases.append(nline)
+                        phrases.append(nline)                
             except FileNotFoundError:
                 print('Language File Not Found')
                 self.ulog('Error loading {}; loading default pack'.format(listname))
-                phrases = ['hello','fine','what\'s up','merci','oui','non']
-
+                phrases = ['default package','hello','fine','what\'s up','merci','oui','non']
+        packname, phrases = phrases[0], phrases[1:]
         self.phrases.delete(0,tk.END)
         for word in phrases:
             self.phrases.insert(tk.END, word)
         self.phrases.select_set(0)
         self.target.set(self.phrases.get(self.phrases.curselection()))
-        
+        self.ulog('Loaded {}'.format(packname))
         
     def select_language(self):
         tk.messagebox.askquestion('Select Language','French or English?')
