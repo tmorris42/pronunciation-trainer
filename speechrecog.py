@@ -3,7 +3,6 @@
 #### TODO:
 ##add mp3/wav playback of what word SHOULD sound like
 ##?? add playback of what you sound like? maybe?
-##add toggle for google/sphinx
 ##create separate lessons
 
 import speech_recognition as sr
@@ -34,8 +33,7 @@ def check_google(audio,lang='en-US'):
         # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
         # instead of `r.recognize_google(audio)
         text = r.recognize_google(audio, show_all=True,language="fr-FR")
-        print("Google Speech Recognition thinks you said:")        
-        pprint(text)
+        print("Google Speech Recognition thinks you said: {}".format(text['alternative'][0]['transcript']))
         return text
     except sr.UnknownValueError:
         print("Google Speech Recognition could not understand audio")
@@ -89,7 +87,13 @@ class App:
         self.langmenu.add_command(label="English", command=lambda:self.change_language('en-US'))
         self.langmenu.add_command(label="French", command=lambda:self.change_language('fr-FR'))
         self.filebar.add_cascade(label="Language", menu=self.langmenu)
-
+        self.advmenu = tk.Menu(self.filebar,tearoff=0)
+        self.srmenu = tk.Menu(self.advmenu,tearoff=0)
+        self.srmenu.add_command(label="Sphinx",command=lambda:self.change_sr('sphinx'))
+        self.srmenu.add_command(label="Google",command=lambda:self.change_sr('google'))
+        self.advmenu.add_cascade(label="Speech Recognition", menu=self.srmenu)
+        self.filebar.add_cascade(label="Advanced", menu=self.advmenu)
+        
         self.menu = tk.Frame(self.main)
         self.studio = tk.Frame(self.main)
         self.phrasebook = tk.Frame(self.main)
@@ -143,7 +147,11 @@ class App:
             self.ulog('Whoops! Try again!')
             self.phrases.itemconfig(self.target_position, {'bg':'red'})
             self.targetViewer.config(readonlybackground='red')
-
+            
+    def change_sr(self, sr):
+        self.sr_meth = sr
+        self.ulog('Switching to {} speech recognition'.format(self.sr_meth))
+        
     def select_phraselist(self):
         file = tk.filedialog.askopenfile(parent=self.master,initialdir=LESSON_PATH+self.lang,mode='rb',title='Open Lesson...')
         if file != None:
