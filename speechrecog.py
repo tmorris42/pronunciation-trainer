@@ -64,6 +64,9 @@ class App:
         
         self.make_window(master)
         self.ulog('window loaded')
+        self.load_phraselist(self.phrase_pack)
+        self.phrases.select_set(0)
+        self.target.set(self.phrases.get(self.phrases.curselection()))
 
     def ulog(self, message, flag=None):
         self.log.set(message)
@@ -72,13 +75,17 @@ class App:
         self.master = master
 
         self.filebar = tk.Menu(self.master)
-        self.filebar.add_command(label="Quit", command=self.master.destroy)
+        
         self.main = tk.Frame(self.master)
         self.console = tk.Label(self.master, textvariable=self.log)
 ##        self.filebar.pack(side=tk.TOP,fill=tk.X)
         self.main.pack(side=tk.TOP,fill=tk.X,expand=0)
         self.console.pack(side=tk.TOP,fill=tk.BOTH,expand=0)
         
+        self.filemenu = tk.Menu(self.filebar,tearoff=0)
+        self.filemenu.add_command(label="Open", command=self.load_phraselist)
+        self.filemenu.add_command(label="Quit", command=self.master.destroy)
+        self.filebar.add_cascade(label="File", menu=self.filemenu)
 ##        self.file = tk.Menubutton(self.filebar,text="File")
 ##        self.edit = tk.Menubutton(self.filebar,text="Edit")
 ##        self.file.pack(side=tk.LEFT)
@@ -102,10 +109,9 @@ class App:
         self.targetViewer.pack(side=tk.TOP)
 
         self.phrases = tk.Listbox(self.phrasebook)
-        for word in self.load_phraselist(self.phrase_pack):
-            self.phrases.insert(tk.END, word)
-        self.phrases.select_set(0)
-        self.target.set(self.phrases.get(self.phrases.curselection()))
+##        self.phrases.insert(tk.END,' ')
+        
+        
         self.phrases.bind("<Double-Button-1>", self.select_phrase)
 ##        self.phrases.config(selectbackground=None,selectborderwidth=0,selectforeground=None)
         self.phrasescroll = tk.Scrollbar(self.phrasebook)
@@ -153,12 +159,13 @@ class App:
                 for line in file:
                     nline=line.rstrip('\n')
                     phrases.append(nline)
-            print(phrases)
-            return phrases
         except FileNotFoundError:
             print('Language File Not Found')
-        self.ulog('Error loading {}; loading default pack'.format(listname))
-        return ['hello','fine','what\'s up','merci','oui','non']
+            self.ulog('Error loading {}; loading default pack'.format(listname))
+            phrases = ['hello','fine','what\'s up','merci','oui','non']
+
+        for word in phrases:
+            self.phrases.insert(tk.END, word)
         
         
     def select_language(self,lang='en-US'):
