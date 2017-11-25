@@ -5,7 +5,7 @@
 ##?? add playback of what you sound like? maybe?
 ##add language selection dialog box
 ##add toggle for google/sphinx
-make filemenu work
+##make filemenu work
 ##create separate lessons
 
 import speech_recognition as sr
@@ -71,17 +71,18 @@ class App:
     def make_window(self, master):
         self.master = master
 
-        self.filebar = tk.Frame(self.master)
+        self.filebar = tk.Menu(self.master)
+        self.filebar.add_command(label="Quit", command=self.master.destroy)
         self.main = tk.Frame(self.master)
         self.console = tk.Label(self.master, textvariable=self.log)
-        self.filebar.pack(side=tk.TOP,fill=tk.X)
+##        self.filebar.pack(side=tk.TOP,fill=tk.X)
         self.main.pack(side=tk.TOP,fill=tk.X,expand=0)
         self.console.pack(side=tk.TOP,fill=tk.BOTH,expand=0)
         
-        self.file = tk.Menubutton(self.filebar,text="File")
-        self.edit = tk.Menubutton(self.filebar,text="Edit")
-        self.file.pack(side=tk.LEFT)
-        self.edit.pack(side=tk.LEFT)        
+##        self.file = tk.Menubutton(self.filebar,text="File")
+##        self.edit = tk.Menubutton(self.filebar,text="Edit")
+##        self.file.pack(side=tk.LEFT)
+##        self.edit.pack(side=tk.LEFT)        
 
         self.menu = tk.Frame(self.main)
         self.studio = tk.Frame(self.main)
@@ -112,6 +113,8 @@ class App:
         self.phrasescroll.pack(side=tk.LEFT,fill=tk.Y)
         self.phrases.config(yscrollcommand=self.phrasescroll.set)
         self.phrasescroll.config(command=self.phrases.yview)
+
+        self.master.config(menu=self.filebar)
 
     def select_phrase(self, *args):
         self.targetViewer.config(readonlybackground='white')
