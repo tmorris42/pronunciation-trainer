@@ -3,7 +3,6 @@
 #### TODO:
 ##add mp3/wav playback of what word SHOULD sound like
 ##?? add playback of what you sound like? maybe?
-##add language selection dialog box
 ##add toggle for google/sphinx
 ##create separate lessons
 
@@ -84,6 +83,10 @@ class App:
         self.filemenu.add_command(label="Open", command=self.select_phraselist)
         self.filemenu.add_command(label="Quit", command=self.master.destroy)
         self.filebar.add_cascade(label="File", menu=self.filemenu)
+        self.langmenu = tk.Menu(self.filebar,tearoff=0)
+        self.langmenu.add_command(label="English", command=lambda:self.change_language('en-US'))
+        self.langmenu.add_command(label="French", command=lambda:self.change_language('fr-FR'))
+        self.filebar.add_cascade(label="Language", menu=self.langmenu)
 ##        self.file = tk.Menubutton(self.filebar,text="File")
 ##        self.edit = tk.Menubutton(self.filebar,text="Edit")
 ##        self.file.pack(side=tk.LEFT)
@@ -183,7 +186,10 @@ class App:
         self.target.set(self.phrases.get(self.phrases.curselection()))
         
         
-    def select_language(self,lang='en-US'):
+    def select_language(self):
+        tk.messagebox.askquestion('Select Language','French or English?')
+
+    def change_language(self,lang='en-US'):
         self.lang = lang
         self.ulog('Language changed to: {}'.format(lang))
 
