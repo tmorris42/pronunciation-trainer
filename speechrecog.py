@@ -11,6 +11,8 @@ from pprint import pprint
 import tkinter as tk
 import io
 
+LESSON_PATH = 'C:\\Users\\HeeHe\\Documents\\_THM\\_VirtualBox\\CinnaMint\\Code\\Python\\Language App\\lessons\\'
+
 def check_sphinx(audio,lang='en-US'):
     # recognize speech using Sphinx
     r = sr.Recognizer()
@@ -153,7 +155,7 @@ class App:
             self.targetViewer.config(readonlybackground='red')
 
     def select_phraselist(self):
-        file = tk.filedialog.askopenfile(parent=self.master,mode='rb',title='my title')
+        file = tk.filedialog.askopenfile(parent=self.master,initialdir=LESSON_PATH+self.lang,mode='rb',title='my title')
         if file != None:
             self.load_phraselist(file)
         
