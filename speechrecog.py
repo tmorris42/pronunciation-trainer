@@ -5,19 +5,19 @@
 ##?? add playback of what you sound like? maybe?
 ##add language selection dialog box
 ##add toggle for google/sphinx
-##make filemenu work
 ##create separate lessons
 
 import speech_recognition as sr
 from pprint import pprint
 import tkinter as tk
+import io
 
 def check_sphinx(audio,lang='en-US'):
     # recognize speech using Sphinx
     r = sr.Recognizer()
     try:
         text = r.recognize_sphinx(audio,language=lang)
-        print("Sphinx thinks you said \"" + text +"\"")
+        print("Sphinx thinks you said \"" + text +"\" "+ str(type(text)))
         return text
     except sr.UnknownValueError:
         print("Sphinx could not understand audio")
@@ -65,8 +65,6 @@ class App:
         self.make_window(master)
         self.ulog('window loaded')
         self.load_phraselist(self.phrase_pack)
-        self.phrases.select_set(0)
-        self.target.set(self.phrases.get(self.phrases.curselection()))
 
     def ulog(self, message, flag=None):
         self.log.set(message)
@@ -83,7 +81,7 @@ class App:
         self.console.pack(side=tk.TOP,fill=tk.BOTH,expand=0)
         
         self.filemenu = tk.Menu(self.filebar,tearoff=0)
-        self.filemenu.add_command(label="Open", command=self.load_phraselist)
+        self.filemenu.add_command(label="Open", command=self.select_phraselist)
         self.filemenu.add_command(label="Quit", command=self.master.destroy)
         self.filebar.add_cascade(label="File", menu=self.filemenu)
 ##        self.file = tk.Menubutton(self.filebar,text="File")
@@ -146,27 +144,43 @@ class App:
             self.phrases.itemconfig(self.target_position, {'bg':'green'})
             self.targetViewer.config(readonlybackground='green')
         else:
-            print('whoops, try again, say "{0}"'.format(target))
+            print('whoops, try again, say "{0}" {1}'.format(target.encode(),type(target)))
             self.ulog('Whoops! Try again!')
             self.phrases.itemconfig(self.target_position, {'bg':'red'})
             self.targetViewer.config(readonlybackground='red')
 
+    def select_phraselist(self):
+        file = tk.filedialog.askopenfile(parent=self.master,mode='rb',title='my title')
+        if file != None:
+            self.load_phraselist(file)
+        
     def load_phraselist(self,listname="test"):
-        self.ulog('Loading {}'.format(listname))
-        try:
-            with open(listname) as file:
-                phrases=[]
-                for line in file:
-                    nline=line.rstrip('\n')
-                    phrases.append(nline)
-        except FileNotFoundError:
-            print('Language File Not Found')
-            self.ulog('Error loading {}; loading default pack'.format(listname))
-            phrases = ['hello','fine','what\'s up','merci','oui','non']
+        phrases=[]
+        if type(listname) == io.BufferedReader:
+            data = listname.read().decode()
+            file=data.split('\n')            
+            for line in file:
+                nline=line.rstrip('\n')
+                nline=line.rstrip('\r')
+                
+                phrases.append(nline)
+        else:
+            self.ulog('Loading {}'.format(listname))
+            try:
+                with open(listname) as file:
+                    for line in file:
+                        nline=line.rstrip('\n')
+                        phrases.append(nline)
+            except FileNotFoundError:
+                print('Language File Not Found')
+                self.ulog('Error loading {}; loading default pack'.format(listname))
+                phrases = ['hello','fine','what\'s up','merci','oui','non']
 
         self.phrases.delete(0,tk.END)
         for word in phrases:
             self.phrases.insert(tk.END, word)
+        self.phrases.select_set(0)
+        self.target.set(self.phrases.get(self.phrases.curselection()))
         
         
     def select_language(self,lang='en-US'):
