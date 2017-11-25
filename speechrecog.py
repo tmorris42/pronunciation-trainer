@@ -164,6 +164,7 @@ class App:
             self.ulog('Error loading {}; loading default pack'.format(listname))
             phrases = ['hello','fine','what\'s up','merci','oui','non']
 
+        self.phrases.delete(0,tk.END)
         for word in phrases:
             self.phrases.insert(tk.END, word)
         
