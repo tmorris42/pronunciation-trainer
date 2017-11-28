@@ -160,12 +160,19 @@ class App:
     def load_phraselist(self,listname="test"):
         phrases=[]
         if type(listname) == io.BufferedReader:
-            data = listname.read().decode()
+            try:
+                data = listname.read().decode('latin1')
+            except UnicodeDecodeError as e:
+                print(type(listname.read()))
+                data = str(listname.read())
+                print(data,type(data))
+##                raise e
+##            except IndexError as e:
+##                raise e
             file=data.split('\n')            
             for line in file:
                 nline=line.rstrip('\n')
-                nline=line.rstrip('\r')
-                
+                nline=line.rstrip('\r')                
                 phrases.append(nline)
         else:
             self.ulog('Loading {}'.format(self.lang+"\\"+listname))
@@ -183,7 +190,7 @@ class App:
         for word in phrases:
             self.phrases.insert(tk.END, word)
         self.phrases.select_set(0)
-        self.target.set(self.phrases.get(self.phrases.curselection()))
+        self.target.set(self.phrases.get(0))
         self.ulog('Loaded {}'.format(packname))
         
     def select_language(self):
