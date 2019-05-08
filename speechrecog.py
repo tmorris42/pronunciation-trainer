@@ -8,7 +8,10 @@
 import speech_recognition as sr
 import tkinter as tk
 from tkinter import messagebox, filedialog
+import os
 import io
+import pyglet
+from gtts import gTTS
 
 LESSON_PATH = 'C:\\Users\\HeeHe\\Documents\\_THM\\_VirtualBox\\CinnaMint\\Code\\Python\\_Utilities\\Language App\\lessons\\'
 
@@ -111,7 +114,7 @@ class App:
         self.selectLanguageButton = tk.Button(self.menu, text="Select Language", width=25, command=self.select_language)
         self.selectLanguageButton.pack(side=tk.TOP)
 
-        self.listenButton = tk.Button(self.studio,text="Listen",width=25)
+        self.listenButton = tk.Button(self.studio,text="Listen",width=25, command=self.listen)
         self.speakButton = tk.Button(self.studio,text="Speak",width=25,command=self.speak)
         self.targetViewer = tk.Entry(self.studio, textvariable=self.target, justify=tk.CENTER,state="readonly",readonlybackground='white')
         self.listenButton.pack(side=tk.TOP)
@@ -136,6 +139,21 @@ class App:
         
 ##        self.speak()
 
+    def listen(self, *args):
+        target = self.phrasedict[self.target.get()]
+        print('target=',target)
+        filename = "resources/"+self.lang+"/"+target+".mp3"
+        
+        if os.path.isfile(filename):
+            a = pyglet.resource.media(filename)
+            a.play()
+        else:
+            tts = gTTS(target, self.lang)
+            tts.save(filename)
+            #a = pyglet.resource.media(filename)
+            a = pyglet.media.load(filename)
+            a.play()
+        
     def speak(self, *args):
         target = self.phrasedict[self.target.get()]
         print('target=',target)
@@ -214,7 +232,7 @@ class App:
                     print('---')
                     print(phrases)
                     raise e
-        print(self.phrasedict)
+        #print(self.phrasedict)
         self.phrases.select_set(0)
         self.target.set(self.phrases.get(0))
         self.ulog('Loaded {}'.format(packname))
