@@ -1,12 +1,12 @@
-en-US: Numbers
-zero
-one
-two
-three
-four
-five
-six
-seven
-eight
-nine
-ten
+en-US:Numbers
+zero:zero
+one:one
+two:two
+three:three
+four:four
+five:five
+six:six
+seven:seven
+eight:eight
+nine:nine
+ten:ten

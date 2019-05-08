@@ -1,13 +1,13 @@
-fr-FR: Difficult Phrases
-Je prends le journal
-Je saisis mon chapeau
-Elle tient un chat
-Ils suivent le cheval
-Il termine son repas
-Vous voyez le repas
-Un homme vend son serpent
-Elle voit un cheval
-Je tiens une tomate
-Il devient un papillon
-J'entends un chat et un cheval
-Elle regarde les filles
+fr-FR:Difficult Phrases
+Je prends le journal:Je prends le journal
+Je saisis mon chapeau:Je saisis mon chapeau
+Elle tient un chat:Elle tient un chat
+Ils suivent le cheval:Ils suivent le cheval
+Il termine son repas:Il termine son repas
+Vous voyez le repas:Vous voyez le repas
+Un homme vend son serpent:Un homme vend son serpent
+Elle voit un cheval:Elle voit un cheval
+Je tiens une tomate:Je tiens une tomate
+Il devient un papillon:Il devient un papillon
+J'entends un chat et un cheval:J'entends un chat et un cheval
+Elle regarde les filles:Elle regarde les filles

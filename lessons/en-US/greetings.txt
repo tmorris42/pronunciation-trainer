@@ -1,5 +1,5 @@
-en-US: Greetings
-hello
-hi
-how are you
-what's up
+en-US:Greetings
+hello:hello
+hi:hi
+how are you:how are you
+what's up:what's up

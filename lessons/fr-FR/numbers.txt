@@ -1,12 +1,12 @@
 fr-FR: Numbers
-zéro
-un
-deux
-trois
-quatre
-cinq
-six
-sept
-huit
-neuf
-dix
+zéro:zéro
+un:un
+deux:deux
+trois:trois
+quatre:quatre
+cinq:cinq
+six:six
+sept:sept
+huit:huit
+neuf:neuf
+dix:dix

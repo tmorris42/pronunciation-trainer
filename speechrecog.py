@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#! /usr/bin/env python
 
 #### TODO:
 ##add mp3/wav playback of what word SHOULD sound like
@@ -6,11 +6,11 @@
 ##create separate lessons
 
 import speech_recognition as sr
-from pprint import pprint
 import tkinter as tk
+from tkinter import messagebox, filedialog
 import io
 
-LESSON_PATH = 'C:\\Users\\HeeHe\\Documents\\_THM\\_VirtualBox\\CinnaMint\\Code\\Python\\Language App\\lessons\\'
+LESSON_PATH = 'C:\\Users\\HeeHe\\Documents\\_THM\\_VirtualBox\\CinnaMint\\Code\\Python\\_Utilities\\Language App\\lessons\\'
 
 def check_sphinx(audio,lang='en-US'):
     # recognize speech using Sphinx
@@ -33,12 +33,15 @@ def check_google(audio,lang='en-US'):
         # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
         # instead of `r.recognize_google(audio)
         text = r.recognize_google(audio, show_all=True,language="fr-FR")
-        print("Google Speech Recognition thinks you said: {}".format(text['alternative'][0]['transcript']))
+        print("Google Speech Recognition thinks you said: {}".format(text['alternative'][0]['transcript'].lower()))
         return text
     except sr.UnknownValueError:
         print("Google Speech Recognition could not understand audio")
     except sr.RequestError as e:
         print("Could not request results from Google Speech Recognition service; {0}".format(e))
+    except TypeError as e:
+        print('here is the problem text\n---\n',text)
+        raise e
     return None
 
 def get_audio():
@@ -56,20 +59,24 @@ class App:
     def __init__(self, master,method='sphinx',lang='en-US',phrasepack='greetings.txt'):
         self.target = tk.StringVar()
         self.target_position = 0
-        self.sr_meth = method
+        self.sr_meth = method        
         self.lang = lang
+        
         self.log = tk.StringVar(value='test')
         self.phrase_pack = phrasepack
         self.master = master
-        
+        self.phrasedict = dict()
         self.make_window()
         self.load_phraselist(self.phrase_pack)
+
+        self.change_sr(method)
+        self.change_language(lang)
 
     def ulog(self, message, flag=None):
         self.log.set(message)
 
     def make_window(self):
-        self.master.winfo_toplevel().title("Say it")
+        self.master.winfo_toplevel().title("Pronunciation")
 
         self.filebar = tk.Menu(self.master)
         
@@ -130,13 +137,14 @@ class App:
 ##        self.speak()
 
     def speak(self, *args):
-        target = self.target.get()
+        target = self.phrasedict[self.target.get()]
+        print('target=',target)
         audio = get_audio()
         if self.sr_meth == 'sphinx':
             result = check_sphinx(audio,lang=self.lang)
         elif self.sr_meth == 'google':
             result = check_google(audio,lang=self.lang)
-            result = result['alternative'][0]['transcript']
+            result = result['alternative'][0]['transcript'].lower()
         if result == target:
             print('you got it!')
             self.ulog('Good job!')
@@ -149,11 +157,19 @@ class App:
             self.targetViewer.config(readonlybackground='red')
             
     def change_sr(self, sr):
+        if self.sr_meth == 'sphinx':
+            self.srmenu.entryconfigure(0, label="Sphinx")
+        elif self.sr_meth == 'google':
+            self.srmenu.entryconfigure(1, label="Google")
         self.sr_meth = sr
+        if self.sr_meth == 'sphinx':
+            self.srmenu.entryconfigure(0, label="Sphinx "+u"\u2713")
+        elif self.sr_meth == 'google':
+            self.srmenu.entryconfigure(1, label="Google "+u"\u2713")        
         self.ulog('Switching to {} speech recognition'.format(self.sr_meth))
         
     def select_phraselist(self):
-        file = tk.filedialog.askopenfile(parent=self.master,initialdir=LESSON_PATH+self.lang,mode='rb',title='Open Lesson...')
+        file = filedialog.askopenfile(parent=self.master,initialdir=LESSON_PATH+self.lang,mode='rb',title='Open Lesson...')
         if file != None:
             self.load_phraselist(file)
         
@@ -188,25 +204,37 @@ class App:
         packname, phrases = phrases[0], phrases[1:]
         self.phrases.delete(0,tk.END)
         for word in phrases:
-            self.phrases.insert(tk.END, word)
+            if word != '':
+                try:
+                    w=word.split(':')
+                    self.phrases.insert(tk.END, w[0])
+                    self.phrasedict[w[0]] = w[1]
+                except IndexError as e:
+                    print(word)
+                    print('---')
+                    print(phrases)
+                    raise e
+        print(self.phrasedict)
         self.phrases.select_set(0)
         self.target.set(self.phrases.get(0))
         self.ulog('Loaded {}'.format(packname))
         
     def select_language(self):
-        tk.messagebox.askquestion('Select Language','French or English?')
+        messagebox.askquestion('Select Language','French or English?')
 
     def change_language(self,lang='en-US'):
+        if self.lang == 'en-US':
+            self.langmenu.entryconfigure(0, label="English")
+        elif self.lang == 'fr-FR':
+            self.langmenu.entryconfigure(1, label="French")
         self.lang = lang
+        if self.lang == 'en-US':
+            self.langmenu.entryconfigure(0, label="English "+u"\u2713")
+        elif self.lang == 'fr-FR':
+            self.langmenu.entryconfigure(1, label="French "+u"\u2713")
         self.ulog('Language changed to: {}'.format(lang))
 
 if __name__ == '__main__':    
-##    audio = get_audio()
-##    text = check_sphinx(audio)
-##    text2 = check_google(audio)
-##    text2 = fake_google()
-##    pprint(text2)
-
     root = tk.Tk()
 ##    app = App(root,lang='fr-FR')
     app = App(root,lang='en-US')
