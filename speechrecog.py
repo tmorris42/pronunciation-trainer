@@ -5,38 +5,39 @@
 ##?? add playback of what you sound like? maybe?
 ##create separate lessons
 
+import os
+import io
+
 import speech_recognition as sr
 import tkinter as tk
 from tkinter import messagebox, filedialog
-import os
-import io
 import pyglet
 from gtts import gTTS
 
 LESSON_PATH = 'C:\\Users\\HeeHe\\Documents\\_THM\\_VirtualBox\\CinnaMint\\Code\\Python\\_Utilities\\Language App\\lessons\\'
 
-def check_sphinx(audio,lang='en-US'):
+def query_sphinx(audio,lang='en-US'):
     # recognize speech using Sphinx
-    r = sr.Recognizer()
+    recognizer = sr.Recognizer()
     try:
-        text = r.recognize_sphinx(audio,language=lang)
-        print("Sphinx thinks you said \"" + text +"\" "+ str(type(text)))
+        text = recognizer.recognize_sphinx(audio,language=lang)
+        print('Sphinx thinks you said: {} ({})'.format(text, str(type(text))))
         return text
     except sr.UnknownValueError:
-        print("Sphinx could not understand audio")
+        print('Sphinx could not understand audio')
     except sr.RequestError as e:
-        print("Sphinx error; {0}".format(e))
+        print('Sphinx error; {0}'.format(e))
     return None
 
-def check_google(audio,lang='en-US'):
+def query_google_speech(audio,lang='en-US'):
     # recognize speech using Google Speech Recognition
-    r = sr.Recognizer()
+    recognizer = sr.Recognizer()
     try:
         # for testing purposes, we're just using the default API key
-        # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
-        # instead of `r.recognize_google(audio)
-        text = r.recognize_google(audio, show_all=True,language="fr-FR")
-        print("Google Speech Recognition thinks you said: {}".format(text['alternative'][0]['transcript'].lower()))
+        # to use another API key, use `recognizer.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
+        # instead of `recognizer.recognize_google(audio)
+        text = recognizer.recognize_google(audio, show_all=True,language='fr-FR')
+        print('Google Speech Recognition thinks you said: {}'.format(text['alternative'][0]['transcript'].lower()))
         return text
     except sr.UnknownValueError:
         print("Google Speech Recognition could not understand audio")
@@ -49,10 +50,10 @@ def check_google(audio,lang='en-US'):
 
 def get_audio():
     # obtain audio from the microphone
-    r = sr.Recognizer()
+    recognizer = sr.Recognizer()
     with sr.Microphone() as source:
         print("Say something!")
-        audio = r.listen(source)
+        audio = recognizer.listen(source)
     return audio
 
 def fake_google():
@@ -114,7 +115,7 @@ class App:
         self.selectLanguageButton = tk.Button(self.menu, text="Select Language", width=25, command=self.select_language)
         self.selectLanguageButton.pack(side=tk.TOP)
 
-        self.listenButton = tk.Button(self.studio,text="Listen",width=25, command=self.listen)
+        self.listenButton = tk.Button(self.studio,text="Listen",width=25, command=self.play_example)
         self.speakButton = tk.Button(self.studio,text="Speak",width=25,command=self.speak)
         self.targetViewer = tk.Entry(self.studio, textvariable=self.target, justify=tk.CENTER,state="readonly",readonlybackground='white')
         self.listenButton.pack(side=tk.TOP)
@@ -139,13 +140,13 @@ class App:
         
 ##        self.speak()
 
-    def listen(self, *args):
+    def play_example(self, *args):
         target = self.phrasedict[self.target.get()]
         print('target=',target)
         filename = "resources/"+self.lang+"/"+target+".mp3"
         
         if os.path.isfile(filename):
-            a = pyglet.resource.media(filename)
+            a = pyglet.media.load(filename)
             a.play()
         else:
             tts = gTTS(target, self.lang)
@@ -156,13 +157,14 @@ class App:
         
     def speak(self, *args):
         target = self.phrasedict[self.target.get()]
-        print('target=',target)
+        print('target =',target)
         audio = get_audio()
         if self.sr_meth == 'sphinx':
-            result = check_sphinx(audio,lang=self.lang)
+            result = query_sphinx(audio,lang=self.lang)
         elif self.sr_meth == 'google':
-            result = check_google(audio,lang=self.lang)
+            result = query_google_speech(audio,lang=self.lang)
             result = result['alternative'][0]['transcript'].lower()
+            
         if result == target:
             print('you got it!')
             self.ulog('Good job!')
@@ -187,7 +189,9 @@ class App:
         self.ulog('Switching to {} speech recognition'.format(self.sr_meth))
         
     def select_phraselist(self):
-        file = filedialog.askopenfile(parent=self.master,initialdir=LESSON_PATH+self.lang,mode='rb',title='Open Lesson...')
+        file = filedialog.askopenfile(parent=self.master,
+                                      initialdir=LESSON_PATH+self.lang,
+                                      mode='rb',title='Open Lesson...')
         if file != None:
             self.load_phraselist(file)
         
