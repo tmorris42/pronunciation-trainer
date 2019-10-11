@@ -1,0 +1,3 @@
+fr-FR: IPA
+tu:tu
+tout:tout
