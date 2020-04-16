@@ -13,21 +13,37 @@ LESSON_PATH = "lessons\\"
 
 
 def query_sphinx(audio, lang="en-US"):
-    # recognize speech using Sphinx
+    """Recognize speech using Sphinx
+
+    Arguments:
+    audio -- the audio that you want to analyze
+    lang -- the language code comprised of ths ISO-630 language code (lower case)
+            followed by a hypen and the ISO-3166 Country Code (upper case)
+    
+    Return the recognized text or None if nothing is understood
+    """
     recognizer = sr.Recognizer()
     try:
         text = recognizer.recognize_sphinx(audio, language=lang)
-        print("Sphinx thinks you said: {}".format(text))
+        print(f"Sphinx thinks you said: {text}")
         return text
     except sr.UnknownValueError:
         print("Sphinx could not understand audio")
-    except sr.RequestError as e:
-        print("Sphinx error; {0}".format(e))
+    except sr.RequestError as error:
+        print("Sphinx error; {0}".format(error))
     return None
 
 
 def query_google_speech(audio, lang="en-US"):
-    # recognize speech using Google Speech Recognition
+    """Recognize speech using Google Speech Recognition
+
+    Arguments:
+    audio -- the audio that you want to analyze
+    lang -- the language code comprised of ths ISO-630 language code (lower case)
+            followed by a hypen and the ISO-3166 Country Code (upper case)
+    
+    Return the most likely text or None if nothing is understood
+    """
     recognizer = sr.Recognizer()
     try:
         # for testing purposes, we're just using the default API key
@@ -42,15 +58,11 @@ def query_google_speech(audio, lang="en-US"):
         return text["alternative"][0]["transcript"].lower()
     except sr.UnknownValueError:
         print("Google Speech Recognition could not understand audio")
-    except sr.RequestError as e:
-        print(
-            "Could not request results from Google Speech Recognition service; {0}".format(
-                e
-            )
-        )
-    except TypeError as e:
+    except sr.RequestError as error:
+        print(f"Could not request results from Google service; {error}")
+    except TypeError as error:
         print("here is the problem text\n---\n", text)
-        raise e
+        raise error
     return None
 
 
@@ -252,26 +264,26 @@ class App:
             self.langmenu.entryconfigure(1, label="French")
         # Add checkmark to newly selected language
         if lang == "en-US":
-            self.langmenu.entryconfigure(0, label="English " + u"\u2713")
+            self.langmenu.entryconfigure(0, label="English " + "\u2713")
         elif lang == "fr-FR":
-            self.langmenu.entryconfigure(1, label="French " + u"\u2713")
+            self.langmenu.entryconfigure(1, label="French " + "\u2713")
 
         self.lang = lang
         self.ulog("Language changed to: {}".format(lang))
 
-    def change_sr(self, sr):
+    def change_sr(self, sr_meth):
         # Remove checkmark from previously selected speech recognition method
         if self.sr_meth == "sphinx":
             self.srmenu.entryconfigure(0, label="Sphinx")
         elif self.sr_meth == "google":
             self.srmenu.entryconfigure(1, label="Google")
         # Add checkmark to newly selected speech recognition method
-        if self.sr_meth == "sphinx":
-            self.srmenu.entryconfigure(0, label="Sphinx " + u"\u2713")
-        elif self.sr_meth == "google":
-            self.srmenu.entryconfigure(1, label="Google " + u"\u2713")
+        if sr_meth == "sphinx":
+            self.srmenu.entryconfigure(0, label="Sphinx " + "\u2713")
+        elif sr_meth == "google":
+            self.srmenu.entryconfigure(1, label="Google " + "\u2713")
         # Update speech recognition method
-        self.sr_meth = sr
+        self.sr_meth = sr_meth
         self.ulog("Switching to {} speech recognition".format(self.sr_meth))
 
 
