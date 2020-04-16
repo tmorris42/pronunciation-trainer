@@ -10,7 +10,7 @@ import pyglet  # type: ignore
 import speech_recognition as sr  # type: ignore
 from gtts import gTTS  # type: ignore
 
-LESSON_PATH = "lessons\\"
+LESSON_PATH = "lessons"
 
 
 def query_sphinx(audio, lang="en-US"):
@@ -76,6 +76,40 @@ def get_audio():
         print("Say something!")
         audio = recognizer.listen(source)
     return audio
+
+
+class Trainer:
+    """Core for the pronunciation trainer"""
+
+    def __init__(self, lang="en-US", phrasepack="greeting.txt"):
+        self.language = lang
+        self.phrases = self.load_phrases(phrasepack)
+
+    def load_phrases(self, filename):
+        """Load phrases from file
+
+        Return dictionary
+        """
+        phrases = []
+        phrasedict = dict()
+        filepath = os.path.join(LESSON_PATH, self.language, filename)
+        try:
+            with open(filepath) as file:
+                for line in file:
+                    phrases.append(line.rstrip("\n"))
+        except FileNotFoundError:
+            print("Language File Not Found")
+            return phrasedict
+        packname, phrases = phrases[0], phrases[1:]
+        for word in phrases:
+            if word != "":
+                try:
+                    word_translation = word.split(":")
+                    phrasedict[word_translation[0]] = word_translation[1]
+                except IndexError as error:
+                    print(f"{word}\n---\n{phrases}")
+                    raise error
+        return phrasedict
 
 
 class App:
