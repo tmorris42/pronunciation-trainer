@@ -1,5 +1,5 @@
-"""A Pronunciation Trainer to help language learners improve"""
 #! /usr/bin/env python3
+"""A Pronunciation Trainer to help language learners improve"""
 
 import io
 import os
@@ -18,7 +18,7 @@ def query_sphinx(audio, lang="en-US"):
 
     Arguments:
     audio -- the audio that you want to analyze
-    lang -- the language code comprised of ths ISO-630 language code (lower case)
+    lang -- language code comprised of ths ISO-630 language code (lowercase)
             followed by a hypen and the ISO-3166 Country Code (upper case)
 
     Return the recognized text or None if nothing is understood
@@ -40,8 +40,8 @@ def query_google_speech(audio, lang="en-US"):
 
     Arguments:
     audio -- the audio that you want to analyze
-    lang -- the language code comprised of ths ISO-630 language code (lower case)
-            followed by a hypen and the ISO-3166 Country Code (upper case)
+    lang -- language code comprised of ths ISO-630 language code (lowercase)
+            followed by a hypen and the ISO-3166 Country Code (uppercase)
 
     Return the most likely text or None if nothing is understood
     """
@@ -217,7 +217,7 @@ class App:
         if isinstance(listname, io.BufferedReader):
             try:
                 data = listname.read().decode("latin1")
-            except UnicodeDecodeError as error:
+            except UnicodeDecodeError:
                 print(type(listname.read()))
                 data = str(listname.read())
                 print(data, type(data))
