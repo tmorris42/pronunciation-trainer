@@ -1,9 +1,10 @@
+"""A Pronunciation Trainer to help language learners improve"""
 #! /usr/bin/env python3
 
 import io
 import os
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog
 
 import pyglet
 import speech_recognition as sr
@@ -19,7 +20,7 @@ def query_sphinx(audio, lang="en-US"):
     audio -- the audio that you want to analyze
     lang -- the language code comprised of ths ISO-630 language code (lower case)
             followed by a hypen and the ISO-3166 Country Code (upper case)
-    
+
     Return the recognized text or None if nothing is understood
     """
     recognizer = sr.Recognizer()
@@ -41,13 +42,15 @@ def query_google_speech(audio, lang="en-US"):
     audio -- the audio that you want to analyze
     lang -- the language code comprised of ths ISO-630 language code (lower case)
             followed by a hypen and the ISO-3166 Country Code (upper case)
-    
+
     Return the most likely text or None if nothing is understood
     """
     recognizer = sr.Recognizer()
     try:
         # for testing purposes, we're just using the default API key
-        # to use another API key, use `recognizer.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
+        # to use another API key, use
+        # `recognizer.recognize_google(
+        # audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
         # instead of `recognizer.recognize_google(audio)
         text = recognizer.recognize_google(audio, show_all=True, language=lang)
         print(
@@ -67,7 +70,7 @@ def query_google_speech(audio, lang="en-US"):
 
 
 def get_audio():
-    # obtain audio from the microphone
+    """Obtain audio from the microphone"""
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
         print("Say something!")
@@ -76,12 +79,12 @@ def get_audio():
 
 
 class App:
-    def __init__(
-        self, master, method="sphinx", lang="en-US", phrasepack="greetings.txt"
-    ):
+    """Speech Recognition app from improving pronunciation"""
+
+    def __init__(self, master, lang="en-US", phrasepack="greetings.txt"):
         self.target = tk.StringVar()
         self.target_position = 0
-        self.sr_meth = method
+        self.sr_meth = "sphinx"
         self.lang = lang
 
         self.log = tk.StringVar(value="loading...")
@@ -90,14 +93,15 @@ class App:
         self.make_window()
         self.load_phraselist(phrasepack)
 
-        self.change_sr(method)
+        self.change_sr(self.sr_meth)
         self.change_language(lang)
 
-    def ulog(self, message, flag=None):
+    def ulog(self, message):
+        """Log a message to the info box"""
         self.log.set(message)
 
     def make_window(self):
-        # Create the main window"
+        """Create the main window"""
         self.master.winfo_toplevel().title("Pronunciation Trainer")
         self.main = tk.Frame(self.master)
         self.console = tk.Label(self.master, textvariable=self.log)
@@ -134,22 +138,22 @@ class App:
         self.studio.pack(side=tk.LEFT, fill=tk.Y)
         self.phrasebook.pack(side=tk.LEFT, fill=tk.X, expand=1)
         # Create the buttons and display for the Main Interactive Area
-        self.listenButton = tk.Button(
+        self.listen_button = tk.Button(
             self.studio, text="Listen", width=25, command=self.play_example
         )
-        self.speakButton = tk.Button(
+        self.speak_button = tk.Button(
             self.studio, text="Speak", width=25, command=self.speak
         )
-        self.targetViewer = tk.Entry(
+        self.target_viewer = tk.Entry(
             self.studio,
             textvariable=self.target,
             justify=tk.CENTER,
             state="readonly",
             readonlybackground="white",
         )
-        self.listenButton.pack(side=tk.TOP)
-        self.speakButton.pack(side=tk.TOP)
-        self.targetViewer.pack(side=tk.TOP)
+        self.listen_button.pack(side=tk.TOP)
+        self.speak_button.pack(side=tk.TOP)
+        self.target_viewer.pack(side=tk.TOP)
         # Create and populate the phrases list
         self.phrases = tk.Listbox(self.phrasebook)
         self.phrases.bind("<Double-Button-1>", self.select_phrase)
@@ -159,24 +163,27 @@ class App:
         self.phrases.config(yscrollcommand=self.phrasescroll.set)
         self.phrasescroll.config(command=self.phrases.yview)
 
-    def select_phrase(self, *args):
-        self.targetViewer.config(readonlybackground="white")
+    def select_phrase(self):
+        """Select a word from the phrase list"""
+        self.target_viewer.config(readonlybackground="white")
         self.target_position = self.phrases.curselection()
         self.target.set(self.phrases.get(self.target_position))
 
-    def play_example(self, *args):
+    def play_example(self):
+        """Play a TTS example of the current word in the current language"""
         target = self.phrasedict[self.target.get()]
         filename = "resources/" + self.lang + "/" + target + ".mp3"
         # Try to load pre-recorded file
         if os.path.isfile(filename):
-            a = pyglet.media.load(filename)
+            audio = pyglet.media.load(filename)
         else:  # Generate using TTS
             tts = gTTS(target, self.lang)
             tts.save(filename)
-            a = pyglet.media.load(filename)
-        a.play()
+            audio = pyglet.media.load(filename)
+        audio.play()
 
-    def speak(self, *args):
+    def speak(self):
+        """Listen for speech, send to current speech_recognition"""
         target = self.phrasedict[self.target.get()]
         audio = get_audio()
         if self.sr_meth == "sphinx":
@@ -187,28 +194,30 @@ class App:
         if result == target:
             self.ulog("Good job!")
             self.phrases.itemconfig(self.target_position, {"bg": "green"})
-            self.targetViewer.config(readonlybackground="green")
+            self.target_viewer.config(readonlybackground="green")
         else:
             self.ulog('I heard  "{}"! Try again!'.format(result))
             self.phrases.itemconfig(self.target_position, {"bg": "red"})
-            self.targetViewer.config(readonlybackground="red")
+            self.target_viewer.config(readonlybackground="red")
 
     def select_phraselist(self):
+        """Open the file dialog to select a phrse list"""
         file = filedialog.askopenfile(
             parent=self.master,
             initialdir=LESSON_PATH + self.lang,
             mode="rb",
             title="Open Lesson...",
         )
-        if file != None:
+        if file is not None:
             self.load_phraselist(file)
 
     def load_phraselist(self, listname="test"):
+        """Load a list of phrase for pronunciation practice"""
         phrases = []
-        if type(listname) == io.BufferedReader:
+        if isinstance(listname, io.BufferedReader):
             try:
                 data = listname.read().decode("latin1")
-            except UnicodeDecodeError as e:
+            except UnicodeDecodeError as error:
                 print(type(listname.read()))
                 data = str(listname.read())
                 print(data, type(data))
@@ -243,20 +252,21 @@ class App:
         for word in phrases:
             if word != "":
                 try:
-                    w = word.split(":")
-                    self.phrases.insert(tk.END, w[0])
-                    self.phrasedict[w[0]] = w[1]
-                except IndexError as e:
+                    word_translation = word.split(":")
+                    self.phrases.insert(tk.END, word_translation[0])
+                    self.phrasedict[word_translation[0]] = word_translation[1]
+                except IndexError as error:
                     print(word)
                     print("---")
                     print(phrases)
-                    raise e
+                    raise error
         # print(self.phrasedict)
         self.phrases.select_set(0)
         self.target.set(self.phrases.get(0))
         self.ulog("Loaded {}".format(packname))
 
     def change_language(self, lang="en-US"):
+        """Change speech recognition language and update menus"""
         # Remove checkmark from previously selected language
         if self.lang == "en-US":
             self.langmenu.entryconfigure(0, label="English")
@@ -272,7 +282,8 @@ class App:
         self.ulog("Language changed to: {}".format(lang))
 
     def change_sr(self, sr_meth):
-        # Remove checkmark from previously selected speech recognition method
+        """Change speech recognition method and update menus"""
+        # Remove checkmark from previously selected speech recognitiongg method
         if self.sr_meth == "sphinx":
             self.srmenu.entryconfigure(0, label="Sphinx")
         elif self.sr_meth == "google":
@@ -288,6 +299,6 @@ class App:
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = App(root, lang="en-US")
-    root.mainloop()
+    ROOT = tk.Tk()
+    APP = App(ROOT, lang="en-US")
+    ROOT.mainloop()
