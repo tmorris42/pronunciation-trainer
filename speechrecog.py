@@ -6,9 +6,9 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 
-import pyglet
-import speech_recognition as sr
-from gtts import gTTS
+import pyglet  # type: ignore
+import speech_recognition as sr  # type: ignore
+from gtts import gTTS  # type: ignore
 
 LESSON_PATH = "lessons\\"
 
