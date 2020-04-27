@@ -144,6 +144,8 @@ class Trainer:
 
     def play_example(self, target):
         """Play a TTS example of the current word in the current language"""
+        if not os.path.isdir(os.path.join("resources", self.language)):
+            os.makedirs(os.path.join(".", "resources", self.language))
         filename = "resources/" + self.language + "/" + target + ".mp3"
         # Try to load pre-recorded file
         if os.path.isfile(filename):  # *** Change to try/except
