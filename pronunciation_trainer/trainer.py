@@ -5,6 +5,9 @@ import os
 import pyglet  # type: ignore
 from gtts import gTTS  # type: ignore
 
+from pronunciation_trainer.definitions.languages import Language
+from pronunciation_trainer.definitions.sr_methods import SrMethod
+
 from .apis import query_google_speech, query_sphinx
 from .get_audio import get_audio
 
@@ -14,7 +17,9 @@ LESSON_PATH = "lessons"
 class Trainer:
     """Core for the pronunciation trainer"""
 
-    def __init__(self, lang="en-US", phrasepack=None, sr_method="sphinx"):
+    def __init__(
+        self, lang=Language.ENGLISH, phrasepack=None, sr_method=SrMethod.SPHINX
+    ):
         self.language = lang
         self.speech_recognition_method = sr_method
         if phrasepack is not None:
@@ -54,7 +59,7 @@ class Trainer:
                 nline = line.rstrip("\r")
                 phrases.append(nline)
         else:
-            filepath = os.path.join(LESSON_PATH, self.language, filename)
+            filepath = os.path.join(LESSON_PATH, self.language.value, filename)
             try:
                 with open(filepath, encoding="utf-8") as file:
                     for line in file:
@@ -77,14 +82,14 @@ class Trainer:
 
     def play_example(self, target):
         """Play a TTS example of the current word in the current language"""
-        if not os.path.isdir(os.path.join("resources", self.language)):
-            os.makedirs(os.path.join(".", "resources", self.language))
-        filename = "resources/" + self.language + "/" + target + ".mp3"
+        if not os.path.isdir(os.path.join("resources", self.language.value)):
+            os.makedirs(os.path.join(".", "resources", self.language.value))
+        filename = "resources/" + self.language.value + "/" + target + ".mp3"
         # Try to load pre-recorded file
         if os.path.isfile(filename):  # *** Change to try/except
             audio = pyglet.media.load(filename)
         else:  # Generate using TTS
-            tts = gTTS(text=target, lang=self.language)
+            tts = gTTS(text=target, lang=self.language.value)
             tts.save(filename)
             audio = pyglet.media.load(filename)
         audio.play()
@@ -92,10 +97,12 @@ class Trainer:
     def speak(self, target):
         """Listen for speech, send to current speech_recognition"""
         audio = get_audio()
-        if self.speech_recognition_method == "sphinx":
-            result = query_sphinx(audio, lang=self.language)
-        elif self.speech_recognition_method == "google":
-            result = query_google_speech(audio, lang=self.language)
+        if self.speech_recognition_method == SrMethod.SPHINX:
+            result = query_sphinx(audio, lang=self.language.value)
+        elif self.speech_recognition_method == SrMethod.GOOGLE:
+            result = query_google_speech(audio, lang=self.language.value)
+        else:
+            result = ""
 
         if result == target:
             return True, result

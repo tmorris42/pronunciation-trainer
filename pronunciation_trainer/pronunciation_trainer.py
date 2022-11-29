@@ -2,6 +2,9 @@
 """A Pronunciation Trainer to help language learners improve"""
 
 
+from pronunciation_trainer.definitions.languages import Language
+from pronunciation_trainer.definitions.sr_methods import SrMethod
+
 from .components.main_window import MainWindow
 from .trainer import Trainer
 
@@ -11,7 +14,7 @@ LESSON_PATH = "lessons"
 class App:
     """Speech Recognition app from improving pronunciation"""
 
-    def __init__(self, lang="en-US", phrasepack="greetings.txt"):
+    def __init__(self, lang=Language.ENGLISH, phrasepack="greetings.txt"):
         self.trainer = Trainer()
         self.window = MainWindow(
             self,
@@ -19,7 +22,7 @@ class App:
         )
 
         self.window.load_phraselist(phrasepack)
-        self.window.change_sr("sphinx")
+        self.window.change_sr(SrMethod.SPHINX)
         self.window.change_language(lang)
 
     def ulog(self, message):
@@ -33,7 +36,7 @@ class App:
 
 def main():
     """Run the pronunciation trainer app"""
-    app = App(lang="en-US")
+    app = App(lang=Language.ENGLISH)
     app.main()
 
 

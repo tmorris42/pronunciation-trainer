@@ -2,11 +2,14 @@
 import tkinter as tk
 from tkinter import filedialog
 
-from ..trainer import Trainer
-from .main_frame import MainFrame
-from .menus.menu_bar import MenuBar
-from .phrasebook_frame import PhrasebookFrame
-from .studio_frame import StudioFrame
+from pronunciation_trainer.components.main_frame import MainFrame
+from pronunciation_trainer.components.menus.menu_bar import MenuBar
+from pronunciation_trainer.components.phrasebook_frame import PhrasebookFrame
+from pronunciation_trainer.components.studio_frame import StudioFrame
+from pronunciation_trainer.definitions.characters import CHECKMARK
+from pronunciation_trainer.definitions.languages import Language
+from pronunciation_trainer.definitions.sr_methods import SrMethod
+from pronunciation_trainer.trainer import Trainer
 
 LESSON_PATH = "lessons"
 
@@ -78,49 +81,46 @@ class MainWindow(tk.Tk):
         self.target.set(self.phrases.get(0))
         self.ulog(f"Loaded {self.trainer.phrase_dictionary['__PACKNAME__']}")
 
-    def change_sr(self, sr_meth):
+    def change_sr(self, sr_meth: SrMethod):
         """Change speech recognition method and update menus"""
-        # Remove checkmark from previously selected speech recognitiongg method
-        if self.trainer.speech_recognition_method == "sphinx":
-            self.filebar.advanced_menu.sr_menu.entryconfigure(
-                0, label="Sphinx"
-            )
-        elif self.trainer.speech_recognition_method == "google":
-            self.filebar.advanced_menu.sr_menu.entryconfigure(
-                1, label="Google"
-            )
-        # Add checkmark to newly selected speech recognition method
-        if sr_meth == "sphinx":
-            self.filebar.advanced_menu.sr_menu.entryconfigure(
-                0, label="Sphinx " + "\u2713"
-            )
-        elif sr_meth == "google":
-            self.filebar.advanced_menu.sr_menu.entryconfigure(
-                1, label="Google " + "\u2713"
-            )
+        sr_menu = self.filebar.advanced_menu.sr_menu
+        # Add checkmark to Sphinx if appropriate
+        if sr_meth == SrMethod.SPHINX:
+            new_label = "Sphinx " + CHECKMARK
+        else:
+            new_label = "Sphinx"
+        sr_menu.entryconfigure(0, label=new_label)
+
+        # Add checkmark to Google if appropriate
+        if sr_meth == SrMethod.GOOGLE:
+            new_label = "Google " + CHECKMARK
+        else:
+            new_label = "Google"
+        sr_menu.entryconfigure(1, label=new_label)
+
         # Update speech recognition method
         self.trainer.speech_recognition_method = sr_meth
-        self.ulog(f"Switching to {sr_meth} speech recognition")
+        self.ulog(f"Switching to {sr_meth.value} speech recognition")
 
-    def change_language(self, lang="en-US"):
+    def change_language(self, lang=Language.ENGLISH):
         """Change speech recognition language and update menus"""
         # Remove checkmark from previously selected language
-        if self.trainer.language == "en-US":
+        if self.trainer.language == Language.ENGLISH:
             self.filebar.language_menu.entryconfigure(0, label="English")
-        elif self.trainer.language == "fr-FR":
+        elif self.trainer.language == Language.FRENCH:
             self.filebar.language_menu.entryconfigure(1, label="French")
         # Add checkmark to newly selected language
-        if lang == "en-US":
+        if lang == Language.ENGLISH:
             self.filebar.language_menu.entryconfigure(
-                0, label="English " + "\u2713"
+                0, label="English " + CHECKMARK
             )
-        elif lang == "fr-FR":
+        elif lang == Language.FRENCH:
             self.filebar.language_menu.entryconfigure(
-                1, label="French " + "\u2713"
+                1, label="French " + CHECKMARK
             )
 
         self.trainer.language = lang
-        self.ulog(f"Language changed to: {lang}")
+        self.ulog(f"Language changed to: {lang.value}")
 
     def play_example(self):
         """Play a TTS example of the current word in the current language"""
