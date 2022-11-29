@@ -14,7 +14,7 @@ class TestApp(unittest.TestCase):
         """Tests for ulog"""
         pt.tk = Mock()
         app = App(Mock())
-        app.log = Mock()
-        app.log.set = Mock()
+        app.window.log = Mock()
+        app.window.log.set = Mock()
         app.ulog("HelloWorld!")
-        app.log.set.assert_called_once_with("HelloWorld!")
+        app.window.log.set.assert_called_once_with("HelloWorld!")
