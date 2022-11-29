@@ -9,4 +9,4 @@ class FileMenu(tk.Menu):
         super().__init__(master, tearoff=0)
         self.master = master
         self.add_command(label="Open", command=master.select_phraselist)
-        self.add_command(label="Quit", command=master.destroy)
+        self.add_command(label="Quit", command=master.quit)

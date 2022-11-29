@@ -140,6 +140,6 @@ class MainWindow(tk.Tk):
             self.phrases.itemconfig(target_position, {"bg": "green"})
             self.studio_frame.target_viewer.config(readonlybackground="green")
         else:
-            self.ulog(f'I heard  "{response}"! Try again!')
+            self.ulog(f'I heard "{response}"! Try again!')
             self.phrases.itemconfig(target_position, {"bg": "red"})
             self.studio_frame.target_viewer.config(readonlybackground="red")
