@@ -3,11 +3,10 @@
 import unittest
 from unittest.mock import Mock
 
-import pronunciation_trainer as pt
-from pronunciation_trainer import App
+import pronunciation_trainer.pronunciation_trainer as pt
+from pronunciation_trainer.pronunciation_trainer import App
 
 
-# pylint: disable = R0201
 class TestApp(unittest.TestCase):
     """Tests for the App class"""
 
