@@ -332,8 +332,10 @@ class App:
         self.trainer.speech_recognition_method = sr_meth
         self.ulog("Switching to {} speech recognition".format(sr_meth))
 
+def main():
+    root = tk.Tk()
+    app = App(root, lang="en-US")
+    root.mainloop()
 
 if __name__ == "__main__":
-    ROOT = tk.Tk()
-    APP = App(ROOT, lang="en-US")
-    ROOT.mainloop()
+    main()
