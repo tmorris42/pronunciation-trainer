@@ -151,7 +151,7 @@ class Trainer:
         if os.path.isfile(filename):  # *** Change to try/except
             audio = pyglet.media.load(filename)
         else:  # Generate using TTS
-            tts = gTTS(target, self.language)
+            tts = gTTS(text=target, lang=self.language)
             tts.save(filename)
             audio = pyglet.media.load(filename)
         audio.play()

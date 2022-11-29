@@ -1,4 +1,4 @@
-gTTS==2.0.3
+gTTS==2.3.0
 pyglet==2.0.0
 SpeechRecognition==3.8.1
 PyAudio==0.2.12
