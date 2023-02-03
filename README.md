@@ -7,7 +7,7 @@ A simple app to help improve your pronunciation when learning a new language.
 
 # Installation
 ```
-git clone https://github.com/taylorhmorris/pronunciation-trainer.git
+git clone https://github.com/tmorris42/pronunciation-trainer.git
 cd pronunciation-trainer
 python -m pip install -r requirements.txt
 ```
